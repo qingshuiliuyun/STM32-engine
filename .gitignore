@@ -1,0 +1,12 @@
+*.Bak
+*.bak
+*.d
+*.o
+*.__i
+*.crf
+*~
+*.swp
+MDK-ARM/SysTick/
+MDK-ARM/SysTick_SysTick.dep
+MDK-ARM/SysTick.uvgui.*
+MDK-ARM/*.bak
