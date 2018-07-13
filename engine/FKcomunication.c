@@ -62,6 +62,9 @@ void  sort(unsigned char a[], unsigned char len)
     }
 }
 
+
+
+
 void FK_Rx(unsigned char buf[], unsigned char len)
 {
 	unsigned char a[3];
@@ -94,6 +97,22 @@ void FK_Rx(unsigned char buf[], unsigned char len)
 			FK_engine = 3;
 			FK_cmd = a[1];
 		}
+		
+		/*hm test
+		buf_error[0] = 0xeb;
+		buf_error[1] = 0x90;
+		buf_error[2] = buf[0];
+		buf_error[3] = a[1];
+		buf_error[4] = a[1];
+		buf_error[5] = a[1];
+		buf_error[6] = a[1];
+		buf_error[7] = FK_cnt++;
+		buf_error[8] = FK_TxCheckSum( (buf_error+2), (sizeof(buf_error)-2) );
+		
+		USART_SendBuf_notDMA(USART1,buf_error,sizeof(buf_error));
+		*/
+		
+		
 	}
 	else
 	{
@@ -169,8 +188,34 @@ void FK_Rev(void)
 			tail++;
 	}
 	
-	if( (M_state == 0) && (g_EngineStateTCO[0] != 0) && (g_EngineStateTCO[1] != 0) && (g_EngineStateTCO[2] != 0) && (g_EngineStateTCO[3] != 0))
+	
+	
+	//反馈给飞控
+	
+	if( (M_state == 0) && ((g_EngineStateTCO[0] != 0) || (g_EngineStateTCO[1] != 0) || (g_EngineStateTCO[2] != 0) || (g_EngineStateTCO[3] != 0)))
 	{
+		
+		if((engine_waitfor_echo[0] > 20)&&(g_EngineStateTCO[0] == 0))//当发送指令数量累计超过20个没有回应时，给飞控超时反馈
+		{
+			g_EngineStateTCO[0] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[1] > 20)&&(g_EngineStateTCO[1] == 0))
+		{
+			g_EngineStateTCO[1] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[2] > 20)&&(g_EngineStateTCO[2] == 0))
+		{
+			g_EngineStateTCO[2] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[3] > 20)&&(g_EngineStateTCO[3] == 0))
+		{
+			g_EngineStateTCO[3] = 0x4f;
+		}
+		
+		
 		buf_error[0] = 0xeb;
 		buf_error[1] = 0x90;
 		buf_error[2] = 0x00;
@@ -189,8 +234,30 @@ void FK_Rev(void)
 		g_EngineStateTCO[3] = 0;
 	}
 	
-	if( (g_EngineStateWPE[0] != 0) && (g_EngineStateWPE[1] != 0) && (g_EngineStateWPE[2] != 0) && (g_EngineStateWPE[3] != 0))
+	if( (g_EngineStateWPE[0] != 0) || (g_EngineStateWPE[1] != 0) || (g_EngineStateWPE[2] != 0) || (g_EngineStateWPE[3] != 0))
 	{
+		
+		if((engine_waitfor_echo[0] > 20)&&(g_EngineStateWPE[0] == 0))//当发送指令数量累计超过20个没有回应时，给飞控超时反馈
+		{
+			g_EngineStateWPE[0] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[1] > 20)&&(g_EngineStateWPE[1] == 0))
+		{
+			g_EngineStateWPE[1] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[2] > 20)&&(g_EngineStateWPE[2] == 0))
+		{
+			g_EngineStateWPE[2] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[3] > 20)&&(g_EngineStateWPE[3] == 0))
+		{
+			g_EngineStateWPE[3] = 0x4f;
+		}
+		
+		
 		buf_error[0] = 0xeb;
 		buf_error[1] = 0x90;
 		buf_error[2] = 0xFF;
@@ -223,8 +290,30 @@ void SendToMessage(void)
     } src;
 	static unsigned char cnt=0;
 	
-	if( (g_EngineStateRAC[0] != 0) && (g_EngineStateRAC[1] != 0) && (g_EngineStateRAC[2] != 0) && (g_EngineStateRAC[3] != 0))
+	if( (g_EngineStateRAC[0] != 0) || (g_EngineStateRAC[1] != 0) || (g_EngineStateRAC[2] != 0) || (g_EngineStateRAC[3] != 0))
 	{
+		
+		if((engine_waitfor_echo[0] > 20)&&(g_EngineStateRAC[0] == 0))//当发送指令数量累计超过20个没有回应时，给飞控超时反馈
+		{
+			g_EngineStateRAC[0] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[1] > 20)&&(g_EngineStateRAC[1] == 0))
+		{
+			g_EngineStateRAC[1] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[2] > 20)&&(g_EngineStateRAC[2] == 0))
+		{
+			g_EngineStateRAC[2] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[3] > 20)&&(g_EngineStateRAC[3] == 0))
+		{
+			g_EngineStateRAC[3] = 0x4f;
+		}
+		
+		
 		buf[0] = 0x9a;
 		buf[1] = 0xbc;
 		buf[2] = 0x00;
@@ -357,9 +446,31 @@ void Message_Rev(void)
 			tail++;
 	}
 	
-	if( (M_state == 1) && (g_EngineStateTCO[0] != 0) && (g_EngineStateTCO[1] != 0) && (g_EngineStateTCO[2] != 0) && (g_EngineStateTCO[3] != 0))
+	if( (M_state == 1) && ((g_EngineStateTCO[0] != 0) || (g_EngineStateTCO[1] != 0) || (g_EngineStateTCO[2] != 0) || (g_EngineStateTCO[3] != 0)))
 	{
 		M_state = 0;
+		
+		if((engine_waitfor_echo[0] > 20)&&(g_EngineStateTCO[0] == 0))//当发送指令数量累计超过20个没有回应时，给信息管理器超时反馈
+		{
+			g_EngineStateTCO[0] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[1] > 20)&&(g_EngineStateTCO[1] == 0))
+		{
+			g_EngineStateTCO[1] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[2] > 20)&&(g_EngineStateTCO[2] == 0))
+		{
+			g_EngineStateTCO[2] = 0x4f;
+		}
+		
+		if((engine_waitfor_echo[3] > 20)&&(g_EngineStateTCO[3] == 0))
+		{
+			g_EngineStateTCO[3] = 0x4f;
+		}
+		
+		
 		buf_error[0] = 0x9a;
 		buf_error[1] = 0xbc;
 		buf_error[2] = 0xff;

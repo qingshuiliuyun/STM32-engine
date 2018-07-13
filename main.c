@@ -9,6 +9,11 @@
 #include "pwm.h"
 #include "FKcomunication.h"
 
+#include "stm32f4xx_conf.h"
+
+
+
+
 
 void InitUSART_Config(void)
 {
@@ -28,14 +33,14 @@ void InitUSART_Config(void)
   */
 int main(void)
 {
-
+	GPIO_InitTypeDef GPIO_InitStructure;
 	uint64_t time_us;
 	uint64_t pre_time_us;
 	unsigned int detime=0;
     InitBSP();
     
     LEDOn();
-
+	
     if (SysTick_Config(SystemCoreClock / 2000))
     { 
         /* Capture error */ 
@@ -66,6 +71,7 @@ int main(void)
 		if(tag_2_5ms)          
         {
             tag_2_5ms = FALSE; 
+			//接收发动机发来的反馈
 			Engine_Rev(0);		
 			Engine_Rev(1);
 			Engine_Rev(2);
@@ -75,9 +81,14 @@ int main(void)
         if(tag_5ms)          
         {
             tag_5ms = FALSE;
+			//接收飞控发来的指令
 			FK_Rev();
+			//接收信息管理器发来的指令
 			Message_Rev();
+			
+			//往发动机发送控制指令
 			FK_Engine();
+			//往信息管理器发送发动机反馈数据
 			SendToMessage();
         }
                 
@@ -142,6 +153,9 @@ int main(void)
         if(tag_200ms)
         {
             tag_200ms = FALSE; 
+			//FK_HM_TEST();
+			
+			
         }
         
         if(tag_500ms && (tag_10ms == FALSE))
@@ -154,10 +168,33 @@ int main(void)
         {    
             
             tag_1s = FALSE;
+			//往发动机发送状态查询指令
 			SendCmdRAC();
+			
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
  
 #ifdef  USE_FULL_ASSERT

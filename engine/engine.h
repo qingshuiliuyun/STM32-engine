@@ -40,6 +40,9 @@ extern unsigned char g_EngineStateWPE[4];
 extern unsigned char g_EngineStateTCO[4];
 extern EngineTypedf g_Engine[4];
 
+extern unsigned int  engine_waitfor_echo[4];
+
+
 void Engine_Rev(unsigned char ch);
 void SendEngineMoniter(void);
 void FK_Engine(void);

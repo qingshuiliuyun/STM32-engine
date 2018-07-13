@@ -13,6 +13,7 @@
 #define WPE		7
 #define OC		0xff
 
+
 #define ECU_OK	0X50
 #define ECU_UC	0X51
 #define ECU_PA	0X52
@@ -45,7 +46,7 @@ unsigned char engine_RSP[] = {'1',',','R','S','P',',','1',0x0d};
 unsigned char engine_RFI[] = {'1',',','R','F','I',',','1',0x0d};
 unsigned char engine_RRC[] = {'1',',','R','R','C',',','1',0x0d};
 
-
+unsigned int  engine_waitfor_echo[]={0,0,0,0};
 
 void SendCmdRAC(void)
 {
@@ -53,6 +54,12 @@ void SendCmdRAC(void)
 	USART_SendBuf_notDMA(UART4,engine_RAC,sizeof(engine_RAC));
 	USART_SendBuf_notDMA(UART5,engine_RAC,sizeof(engine_RAC));
 	USART_SendBuf_notDMA(USART6,engine_RAC,sizeof(engine_RAC));
+	
+	engine_waitfor_echo[0] ++;
+	engine_waitfor_echo[1] ++;
+	engine_waitfor_echo[2] ++;
+	engine_waitfor_echo[3] ++;
+	
 }
 
 
@@ -68,12 +75,24 @@ void FK_Engine(void)
 			USART_SendBuf_notDMA(UART4,engine_start,sizeof(engine_start));
 			USART_SendBuf_notDMA(UART5,engine_start,sizeof(engine_start));
 			USART_SendBuf_notDMA(USART6,engine_start,sizeof(engine_start));
+		
+		    engine_waitfor_echo[0] ++;
+			engine_waitfor_echo[1] ++;
+			engine_waitfor_echo[2] ++;
+			engine_waitfor_echo[3] ++;
+		
 			break;
 		case 2:
 			USART_SendBuf_notDMA(USART3,engine_shut,sizeof(engine_shut));
 			USART_SendBuf_notDMA(UART4,engine_shut,sizeof(engine_shut));
 			USART_SendBuf_notDMA(UART5,engine_shut,sizeof(engine_shut));
 			USART_SendBuf_notDMA(USART6,engine_shut,sizeof(engine_shut));
+		  
+            engine_waitfor_echo[0] ++;
+			engine_waitfor_echo[1] ++;
+			engine_waitfor_echo[2] ++;
+			engine_waitfor_echo[3] ++;		
+		
 		case 3:
 			USART_SendBuf_notDMA(USART3,engine_setThr,sizeof(engine_setThr));
 			USART_SendBuf_notDMA(UART4,engine_setThr,sizeof(engine_setThr));
@@ -108,6 +127,12 @@ void FK_Engine(void)
 				USART_SendBuf_notDMA(UART5,buf,2);
 				USART_SendBuf_notDMA(USART6,buf,2);
 			}
+			
+			engine_waitfor_echo[0] ++;
+			engine_waitfor_echo[1] ++;
+			engine_waitfor_echo[2] ++;
+			engine_waitfor_echo[3] ++;
+			
 			break;
 		default:
 			break;
@@ -175,7 +200,7 @@ int NMEA_Str2num(unsigned char *buf,unsigned char*dx)
 	if(mask&0X02)res=-res;		   
 	return res;
 }	
-
+//RAC·´À¡
 void RAC_decode(unsigned char ch, unsigned char *buf_use,unsigned char num)
 {
 	unsigned char tail1=0;
@@ -325,14 +350,17 @@ void Engine_Rev(unsigned char ch)
 											//RCA
 											RAC_decode(ch, buf_use, len);	
 											g_EngineStateRAC[ch] = ECU_OK;
+										    engine_waitfor_echo[ch] = 0;
 											tail[ch] = tail[ch]+len;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_OK;
+											engine_waitfor_echo[ch] = 0;
 											tail[ch] = tail[ch]+len;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_OK;
+										    engine_waitfor_echo[ch] = 0;
 											tail[ch] = tail[ch]+len;
 											break;
 										default:
@@ -358,12 +386,15 @@ void Engine_Rev(unsigned char ch)
 									{
 										case RAC:
 											g_EngineStateRAC[ch] = ECU_UC;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_UC;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_UC;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										default:
 											break;
@@ -377,12 +408,15 @@ void Engine_Rev(unsigned char ch)
 									{
 										case RAC:
 											g_EngineStateRAC[ch] = ECU_PA;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_PA;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_PA;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										default:
 											break;
@@ -396,12 +430,15 @@ void Engine_Rev(unsigned char ch)
 									{
 										case RAC:
 											g_EngineStateRAC[ch] = ECU_NA;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_NA;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_NA;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										default:
 											break;
@@ -415,12 +452,15 @@ void Engine_Rev(unsigned char ch)
 									{
 										case RAC:
 											g_EngineStateRAC[ch] = ECU_PR;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_PR;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_PR;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										default:
 											break;
@@ -434,12 +474,15 @@ void Engine_Rev(unsigned char ch)
 									{
 										case RAC:
 											g_EngineStateRAC[ch] = ECU_PL;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_PL;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_PL;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										default:
 											break;
@@ -453,12 +496,15 @@ void Engine_Rev(unsigned char ch)
 									{
 										case RAC:
 											g_EngineStateRAC[ch] = ECU_DF;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case WPE:
 											g_EngineStateWPE[ch] = ECU_DF;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										case TCO:
 											g_EngineStateTCO[ch] = ECU_DF;
+										    engine_waitfor_echo[ch] = 0;
 											break;
 										default:
 											break;
