@@ -96,23 +96,7 @@ void FK_Rx(unsigned char buf[], unsigned char len)
 		{
 			FK_engine = 3;
 			FK_cmd = a[1];
-		}
-		
-		/*hm test
-		buf_error[0] = 0xeb;
-		buf_error[1] = 0x90;
-		buf_error[2] = buf[0];
-		buf_error[3] = a[1];
-		buf_error[4] = a[1];
-		buf_error[5] = a[1];
-		buf_error[6] = a[1];
-		buf_error[7] = FK_cnt++;
-		buf_error[8] = FK_TxCheckSum( (buf_error+2), (sizeof(buf_error)-2) );
-		
-		USART_SendBuf_notDMA(USART1,buf_error,sizeof(buf_error));
-		*/
-		
-		
+		}		
 	}
 	else
 	{
@@ -134,7 +118,7 @@ void FK_Rev(void)
 {
 	unsigned char buf_error[9];
 	unsigned char  rxBufLen, numread;
-    unsigned char  idx,  temp[256],buf_use[6];
+    unsigned char  idx,  temp[256],buf_use[7];//buf_use[6];
     unsigned char  tail1, tail2, prtail; 
 
     static unsigned char  head=0, tail=0, buff[256];
@@ -151,7 +135,8 @@ void FK_Rev(void)
 		}
 	}
 	
-	while (((unsigned char)(head-tail)) >= 8) 
+	//while (((unsigned char)(head-tail)) >= 8) 
+	while (((unsigned char)(head-tail)) >= 9) 
     {
 		tail1 = (unsigned char)(tail + 1);
 		tail2 = (unsigned char)(tail + 2);
@@ -164,7 +149,8 @@ void FK_Rev(void)
 			
 			if (FK_RxCheckSum(buf_use, sizeof(buf_use)))  //Âú×ãÐ£ÑéºÍ
 			{
-			   tail += 8;			       
+			   //tail += 8;
+               tail += 9;				
 			   FK_Rx(buf_use,sizeof(buf_use));
 			}
 			else
